@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(shark)
 
+enable_testing()
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -18,7 +20,7 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+find_package (Eigen3 REQUIRED NO_MODULE)
 
 add_subdirectory(ext/cryptoTools)
 
@@ -55,117 +57,75 @@ PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-add_executable(test-matmul-time tests/single/matmul-time.cpp)
-target_link_libraries(test-matmul-time ${PROJECT_NAME})
+# list of all single running tests
+set(SINGLE_TESTS
+    dcfbit
+    dcfring
+    dpfring
+    span
+)
 
-add_executable(test-init tests/multi/init.cpp)
-target_link_libraries(test-init ${PROJECT_NAME})
+# run for all single running tests
+foreach(testname IN LISTS SINGLE_TESTS)
+    add_executable(test-single-${testname} tests/single/${testname}.cpp)
+    target_link_libraries(test-single-${testname} ${PROJECT_NAME})
+    add_test(NAME test-single-${testname} COMMAND test-single-${testname})
+endforeach()
 
+set(MULTI_TESTS
+    init
+    matmul
+    relutruncate
+    select
+    matmul-big
+    drelu
+    relu
+    # conv # failing
+    maxpool
+    spline
+    sigmoid
+    tanh
+    # reciprocal # failing
+    lut
+)
 
-add_executable(test-matmul tests/multi/matmul.cpp)
-target_link_libraries(test-matmul ${PROJECT_NAME})
+foreach(testname IN LISTS MULTI_TESTS)
+    add_executable(test-multi-${testname} tests/multi/${testname}.cpp)
+    target_link_libraries(test-multi-${testname} ${PROJECT_NAME})
+    add_test(NAME test-multi-${testname} COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/tests/run-multi.sh multi-${testname})
+endforeach()
 
-add_executable(test-dcfbit tests/single/dcfbit.cpp)
-target_link_libraries(test-dcfbit ${PROJECT_NAME})
+set (BENCHMARKS
+    deepsecure1
+    deepsecure2
+    deepsecure3
+    deepsecure4
+    simc1
+    simc2
+    bert
+    alexnet
+    alexnet-localtrunc
+    mnist-A
+    hinet
+    vgg16
+)
 
-add_executable(test-dcfring tests/single/dcfring.cpp)
-target_link_libraries(test-dcfring ${PROJECT_NAME})
+foreach (benchmark IN LISTS BENCHMARKS)
+    add_executable(benchmark-${benchmark} benchmarks/${benchmark}.cpp)
+    target_link_libraries(benchmark-${benchmark} ${PROJECT_NAME})
+endforeach()
 
-add_executable(test-dpfring tests/single/dpfring.cpp)
-target_link_libraries(test-dpfring ${PROJECT_NAME})
+set (MICROBENCHMARKS
+    relu
+    spline
+    relutruncate
+    maxpool
+    reciprocal
+    matmul
+    linear
+)
 
-add_executable(test-relutruncate tests/multi/relutruncate.cpp)
-target_link_libraries(test-relutruncate ${PROJECT_NAME})
-
-add_executable(test-select tests/multi/select.cpp)
-target_link_libraries(test-select ${PROJECT_NAME})
-
-add_executable(test-span tests/single/span.cpp)
-target_link_libraries(test-span ${PROJECT_NAME})
-
-add_executable(test-matmul-big tests/multi/matmul-big.cpp)
-target_link_libraries(test-matmul-big ${PROJECT_NAME})
-
-add_executable(test-drelu tests/multi/drelu.cpp)
-target_link_libraries(test-drelu ${PROJECT_NAME})
-
-add_executable(test-relu tests/multi/relu.cpp)
-target_link_libraries(test-relu ${PROJECT_NAME})
-
-add_executable(test-conv tests/failing/conv.cpp)
-target_link_libraries(test-conv ${PROJECT_NAME})
-
-add_executable(test-maxpool tests/multi/maxpool.cpp)
-target_link_libraries(test-maxpool ${PROJECT_NAME})
-
-add_executable(benchmark-hinet benchmarks/hinet.cpp)
-target_link_libraries(benchmark-hinet ${PROJECT_NAME})
-
-add_executable(benchmark-vgg16 benchmarks/vgg16.cpp)
-target_link_libraries(benchmark-vgg16 ${PROJECT_NAME})
-
-add_executable(test-spline tests/multi/spline.cpp)
-target_link_libraries(test-spline ${PROJECT_NAME})
-
-add_executable(test-sigmoid tests/multi/sigmoid.cpp)
-target_link_libraries(test-sigmoid ${PROJECT_NAME})
-
-add_executable(test-tanh tests/multi/tanh.cpp)
-target_link_libraries(test-tanh ${PROJECT_NAME})
-
-add_executable(test-reciprocal tests/failing/reciprocal.cpp)
-target_link_libraries(test-reciprocal ${PROJECT_NAME})
-
-add_executable(test-lut tests/multi/lut.cpp)
-target_link_libraries(test-lut ${PROJECT_NAME})
-
-add_executable(benchmark-deepsecure1 benchmarks/deepsecure1.cpp)
-target_link_libraries(benchmark-deepsecure1 ${PROJECT_NAME})
-
-add_executable(benchmark-deepsecure2 benchmarks/deepsecure2.cpp)
-target_link_libraries(benchmark-deepsecure2 ${PROJECT_NAME})
-
-add_executable(benchmark-deepsecure3 benchmarks/deepsecure3.cpp)
-target_link_libraries(benchmark-deepsecure3 ${PROJECT_NAME})
-
-add_executable(benchmark-deepsecure4 benchmarks/deepsecure4.cpp)
-target_link_libraries(benchmark-deepsecure4 ${PROJECT_NAME})
-
-add_executable(benchmark-simc1 benchmarks/simc1.cpp)
-target_link_libraries(benchmark-simc1 ${PROJECT_NAME})
-
-add_executable(benchmark-simc2 benchmarks/simc2.cpp)
-target_link_libraries(benchmark-simc2 ${PROJECT_NAME})
-
-add_executable(benchmark-bert benchmarks/bert.cpp)
-target_link_libraries(benchmark-bert ${PROJECT_NAME})
-
-add_executable(benchmark-alexnet benchmarks/alexnet.cpp)
-target_link_libraries(benchmark-alexnet ${PROJECT_NAME})
-
-add_executable(benchmark-alexnet-localtrunc benchmarks/alexnet-localtrunc.cpp)
-target_link_libraries(benchmark-alexnet-localtrunc ${PROJECT_NAME})
-
-add_executable(benchmark-mnist-A benchmarks/mnist-A.cpp)
-target_link_libraries(benchmark-mnist-A ${PROJECT_NAME})
-
-add_executable(micro-relu microbenchmarks/relu.cpp)
-target_link_libraries(micro-relu ${PROJECT_NAME})
-
-add_executable(micro-spline microbenchmarks/spline.cpp)
-target_link_libraries(micro-spline ${PROJECT_NAME})
-
-add_executable(micro-relutruncate microbenchmarks/relutruncate.cpp)
-target_link_libraries(micro-relutruncate ${PROJECT_NAME})
-
-add_executable(micro-maxpool microbenchmarks/maxpool.cpp)
-target_link_libraries(micro-maxpool ${PROJECT_NAME})
-
-add_executable(micro-reciprocal microbenchmarks/reciprocal.cpp)
-target_link_libraries(micro-reciprocal ${PROJECT_NAME})
-
-add_executable(micro-matmul microbenchmarks/matmul.cpp)
-target_link_libraries(micro-matmul ${PROJECT_NAME})
-
-add_executable(micro-linear microbenchmarks/linear.cpp)
-target_link_libraries(micro-linear ${PROJECT_NAME})
+foreach (microbenchmark IN LISTS MICROBENCHMARKS)
+    add_executable(micro-${microbenchmark} microbenchmarks/${microbenchmark}.cpp)
+    target_link_libraries(micro-${microbenchmark} ${PROJECT_NAME})
+endforeach()
