@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cryptoTools/Crypto/PRNG.h>
+#include <simdcrypt/PRNG.hpp>
 
 #include <shark/types/u128.hpp>
 #include <shark/utils/comm.hpp>
@@ -13,7 +13,7 @@ namespace shark {
         /// this key is used to generate the keys for the two parties
         /// same key to this PRNG generates exactly same keys
         /// evaluators also use this object to generate commitment randomness
-        extern osuCrypto::PRNG prngGlobal;
+        extern simdcrypt::PRNG prngGlobal;
         /// party identifier
         extern int party;
         /// legend to party identifier

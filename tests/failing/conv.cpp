@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     u64 outH = (h + 2 * padding - f) / stride + 1;
     u64 outW = (w + 2 * padding - f) / stride + 1;
 
-    osuCrypto::PRNG initPRNG(osuCrypto::toBlock(0xdeadbeef));
+    simdcrypt::PRNG initPRNG(simdcrypt::toBlock(0xdeadbeef));
 
     shark::span<u64> Filter(co * f * f * ci);
     shark::span<u64> Img(bs * h * w * ci);

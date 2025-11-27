@@ -2,13 +2,13 @@
 
 #include <cstdint>
 #include <Eigen/Dense>
-#include <cryptoTools/Common/Defines.h>
+#include <simdcrypt/AES.hpp>
 
 #include <shark/types/u64.hpp>
 #include <shark/types/u8.hpp>
 
 namespace shark {
-    typedef osuCrypto::block block;
+    typedef simdcrypt::block block;
     typedef __uint128_t u128;
 
     inline u64 getLow(const u128 &x)

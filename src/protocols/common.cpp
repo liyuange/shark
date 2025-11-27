@@ -1,13 +1,13 @@
 #include <shark/protocols/common.hpp>
 #include <shark/utils/assert.hpp>
-#include <cryptoTools/Crypto/RandomOracle.h>
 #include <shark/utils/timer.hpp>
+#include <simdcrypt/AESHash.hpp>
 
 namespace shark
 {
     namespace protocols
     {
-        osuCrypto::PRNG prngGlobal;
+        simdcrypt::PRNG prngGlobal;
         int party;
 
         Peer *server;
@@ -376,8 +376,8 @@ namespace shark
         template <typename T>
         shark::span<u8> compute_commitment(int party, T x, block r)
         {
-            osuCrypto::RandomOracle H;
-            shark::span<u8> commitment(osuCrypto::RandomOracle::HashSize);
+            simdcrypt::AESHash H;
+            shark::span<u8> commitment(simdcrypt::AESHash::HashSize);
             H.Update((u8 *)&party, sizeof(int));
             H.Update((u8 *)&x, sizeof(T));
             H.Update((u8 *)&r, sizeof(block));
@@ -391,14 +391,14 @@ namespace shark
             block r = rand<block>();
             shark::span<u8> commitment = compute_commitment(party, x, r);
             peer->send_array(commitment);
-            auto peer_commitment = peer->recv_array<u8>(osuCrypto::RandomOracle::HashSize);
+            auto peer_commitment = peer->recv_array<u8>(simdcrypt::AESHash::HashSize);
 
             peer->send(x);
             T peer_x = peer->recv<T>();
 
             shark::span<u8> peer_commitment2 = compute_commitment(SERVER + CLIENT - party, peer_x, r);
 
-            for (int i = 0; i < osuCrypto::RandomOracle::HashSize; i++)
+            for (int i = 0; i < simdcrypt::AESHash::HashSize; i++)
             {
                 always_assert(peer_commitment[i] == peer_commitment2[i]);
             }
@@ -414,7 +414,7 @@ namespace shark
                 return;
             }
 
-            osuCrypto::PRNG prngBatchCheck;
+            simdcrypt::PRNG prngBatchCheck;
             block r_prng = rand<block>();
             block peer_r_prng = commit_and_exchange(r_prng);
             block prng_seed = r_prng ^ peer_r_prng;

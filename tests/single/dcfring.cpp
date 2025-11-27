@@ -12,7 +12,7 @@ using namespace shark;
 
 void dcfring_small_exhaustive()
 {
-    prngGlobal.SetSeed(osuCrypto::toBlock(0xdeadbeef));
+    prngGlobal.SetSeed(simdcrypt::toBlock(0xdeadbeef));
     ring_key = 0xdeadbeef;
     int bin = 8;
 
@@ -45,7 +45,7 @@ void dcfring_small_exhaustive()
 
 void dcfring_large_random()
 {
-    prngGlobal.SetSeed(osuCrypto::toBlock(0xdeadbeef));
+    prngGlobal.SetSeed(simdcrypt::toBlock(0xdeadbeef));
     ring_key = 0xdeadbeef;
     int bin = 64;
 

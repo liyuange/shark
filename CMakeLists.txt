@@ -11,7 +11,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-write-strings -Wno-unused-result -maes -Wno-ignored-attributes -march=native -Wno-deprecated-declarations")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-write-strings -Wno-unused-result -Wno-ignored-attributes -Wno-deprecated-declarations")
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -22,7 +22,13 @@ endif()
 
 find_package (Eigen3 REQUIRED NO_MODULE)
 
-add_subdirectory(ext/cryptoTools)
+include(FetchContent)
+FetchContent_Declare(
+    simdcrypt
+    GIT_REPOSITORY https://github.com/kanav99/simdcrypt.git
+    GIT_TAG main
+)
+FetchContent_MakeAvailable(simdcrypt)
 
 add_library(${PROJECT_NAME}
     src/utils/timer.cpp
@@ -50,7 +56,7 @@ add_library(${PROJECT_NAME}
     src/crypto/dpfring.cpp
 )
 
-target_link_libraries (${PROJECT_NAME} Eigen3::Eigen cryptoTools)
+target_link_libraries (${PROJECT_NAME} Eigen3::Eigen simdcrypt)
 target_include_directories(${PROJECT_NAME}
 PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

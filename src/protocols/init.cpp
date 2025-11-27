@@ -10,7 +10,7 @@ namespace shark {
             void gen(uint64_t key)
             {
                 party = DEALER;
-                prngGlobal.SetSeed(osuCrypto::toBlock(key));
+                prngGlobal.SetSeed(simdcrypt::toBlock(key));
 
                 server = new Peer(filename[0]);
                 client = new Peer(filename[1]);
@@ -50,7 +50,7 @@ namespace shark {
                     peer = new Peer(ip, port);
                 }
 
-                prngGlobal.SetSeed(osuCrypto::toBlock(::rand(), ::rand()));
+                prngGlobal.SetSeed(simdcrypt::toBlock(::rand(), ::rand()));
 
             }
 

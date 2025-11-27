@@ -11,7 +11,7 @@ using namespace shark;
 
 void dcfbit_small_exhaustive()
 {
-    prngGlobal.SetSeed(osuCrypto::toBlock(0xdeadbeef));
+    prngGlobal.SetSeed(simdcrypt::toBlock(0xdeadbeef));
     bit_key = 0xdeadbeef;
     int bin = 8;
 
@@ -44,7 +44,7 @@ void dcfbit_small_exhaustive()
 
 void dcfbit_large_random()
 {
-    prngGlobal.SetSeed(osuCrypto::toBlock(0xdeadbeef));
+    prngGlobal.SetSeed(simdcrypt::toBlock(0xdeadbeef));
     bit_key = 0xdeadbeef;
     int bin = 64;
 

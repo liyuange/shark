@@ -2,13 +2,13 @@
 #include <shark/types/u128.hpp>
 #include <shark/protocols/common.hpp>
 #include <shark/crypto/dcfring.hpp>
-#include <cryptoTools/Crypto/AES.h>
+#include <simdcrypt/AES.hpp>
 
 namespace shark
 {
     namespace crypto
     {
-        using namespace osuCrypto;
+        using namespace simdcrypt;
 
         const block notOneBlock = toBlock(~0, ~1);
         const block notThreeBlock = toBlock(~0, ~3);
@@ -17,6 +17,7 @@ namespace shark
         const block TwoBlock = toBlock(0, 2);
         const block ThreeBlock = toBlock(0, 3);
         const block pt[4] = {ZeroBlock, OneBlock, TwoBlock, ThreeBlock};
+        const block zeroAndAllOne[2] = {toBlock(0, 0), toBlock(-1ull, -1ull)};
 
         const AES ak0(toBlock(11898517819052905481ull, 11033408630406285283ull));
         const AES ak1(toBlock(9326388341714895150ull, 10128647480701028797ull));
@@ -27,7 +28,7 @@ namespace shark
 
         inline u8 lsb(const block &b)
         {
-            return _mm_cvtsi128_si64x(b) & 1;
+            return extract_u64<0>(b) & 1;
         }
 
         void convert(const block &in, u128 &out_ring, u128 &out_tag)
@@ -221,14 +222,14 @@ namespace shark
         std::tuple<block, u128, u128> traversePathDCF(int party, const DCFRingKey &key, u64 x, const bool geq)
         {
             int bin = key.k.size() - 1;
-            block s = _mm_loadu_si128(key.k.data());
+            block s = load_block(key.k.data());
             u128 out_ring = 0;
             u128 out_tag = 0;
 
             for (int i = 0; i < bin; ++i)
             {
                 const u8 keep = static_cast<uint8_t>(x >> (bin - 1 - i)) & 1;
-                s = traverseOneDCF(s, _mm_loadu_si128(key.k.data() + (i + 1)), 
+                s = traverseOneDCF(s, load_block(key.k.data() + (i + 1)), 
                         keep, 
                         out_ring, out_tag, 
                         key.v_ring[i], key.v_tag[i],
