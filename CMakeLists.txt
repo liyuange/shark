@@ -73,8 +73,11 @@ foreach(testname IN LISTS SINGLE_TESTS)
 endforeach()
 
 set(MULTI_TESTS
+    expproof-adult-layer1
     init
     matmul
+    matmul-expproof-adult
+    matmul-expproof-adult-sync
     relutruncate
     select
     matmul-big
@@ -96,6 +99,8 @@ foreach(testname IN LISTS MULTI_TESTS)
 endforeach()
 
 set (BENCHMARKS
+    expproof-adult
+    expproof-german
     deepsecure1
     deepsecure2
     deepsecure3

@@ -71,7 +71,7 @@ namespace shark {
                 if (_party == DEALER)
                     init::gen(0xdeadbeef);
                 else
-                    eval(_party, ip, 42069, true);
+                    eval(_party, ip, port, true);
             }
         }
     }

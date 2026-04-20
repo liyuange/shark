@@ -216,8 +216,10 @@ namespace shark
         template <typename T>
         shark::span<T> recv_array(u64 size)
         {
-            T* buf = (T*) keyBuf->read(size * sizeof(T));
-            shark::span<T> arr(buf, size);
+            // Do not alias an arbitrary byte buffer as T*: one-shot dealer buffers
+            // can be at odd byte offsets, which breaks u128 alignment.
+            shark::span<T> arr(size);
+            keyBuf->read((char *)arr.data(), arr.size() * sizeof(T));
             return arr;
         }
 
@@ -321,8 +323,10 @@ namespace shark
         template <typename T>
         shark::span<T> recv_array(u64 size)
         {
-            T* buf = (T*) keyBuf->read(size * sizeof(T));
-            shark::span<T> arr(buf, size);
+            // Do not alias an arbitrary byte buffer as T*: one-shot dealer buffers
+            // can be at odd byte offsets, which breaks u128 alignment.
+            shark::span<T> arr(size);
+            keyBuf->read((char *)arr.data(), arr.size() * sizeof(T));
             return arr;
         }
 
