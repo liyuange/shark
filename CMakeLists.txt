@@ -100,6 +100,7 @@ endforeach()
 
 set (BENCHMARKS
     expproof-adult
+    expproof-credit
     expproof-german
     deepsecure1
     deepsecure2
